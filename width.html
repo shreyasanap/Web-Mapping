@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Render Vector Tiles on Mapbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Include Mapbox GL JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+    // Your Mapbox access token
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hyZXlhLXNhbmFwIiwiYSI6ImNtNDd6cXI2YTAzc3UybHM1NWZ4eHlpMzIifQ.fsDaiFou5ONZK_G4H70zsQ';
+
+    // Initialize the map
+    const map = new mapboxgl.Map({
+      container: 'map', // Container ID
+      style: 'mapbox://styles/mapbox/light-v11', // Map style
+      center: [77.1025, 28.7041], // Initial center [lng, lat]
+      zoom: 8.5, // Initial zoom level
+    });
+
+    // Wait for the map to load before adding the layer
+    map.on('load', () => {
+      // Add your vector tile source
+      map.addSource('width-source', {
+        type: 'vector',
+        tiles: ['http://localhost:3000/tiles/{z}/{x}/{y}.mvt'], // URL to your tile server
+        minzoom: 0,
+        maxzoom: 14,
+      });
+
+      // Add a layer to style and render the data as lines
+      map.addLayer({
+        id: 'width-layer',
+        type: 'line', // Layer type (line instead of fill)
+        source: 'width-source',
+        'source-layer': 'width', // Must match the layer name in ST_AsMVT
+        paint: {
+          'line-color': [
+            'match',
+            ['get', 'width'], // Use the 'highway' property from the data
+            '0', '#FF4500', // Orange Red
+            '0-1', '#8B4513', // Saddle Brown
+            '1', '#FFA500', // Orange
+            '2', '#DAA520', // Goldenrod
+            '3', '#32CD32', // Lime Green
+            '4', '#FFD700', // Gold
+            '#888888' // Default for unmatched properties
+          ],
+
+          'line-width': 2, // Set the line width
+          'line-opacity': 0.8, // Set the line opacity
+        }
+
+      });
+      map.on('click', 'width-layer', (e) => {
+        const properties = e.features[0].properties;
+        console.log('Properties:', properties);
+        console.log('Width value:', properties.width);
+        console.log('Type of width:', typeof properties.width);
+      });
+    });
+  </script>
+</body>
+
+</html>
+
