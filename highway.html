@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Render Vector Tiles on Mapbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Include Mapbox GL JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+    // Your Mapbox access token
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2hyZXlhLXNhbmFwIiwiYSI6ImNtNDd6cXI2YTAzc3UybHM1NWZ4eHlpMzIifQ.fsDaiFou5ONZK_G4H70zsQ';
+
+    // Initialize the map
+    const map = new mapboxgl.Map({
+      container: 'map', // Container ID
+      style: 'mapbox://styles/mapbox/light-v11', // Map style
+      center: [77.1025, 28.7041], // Initial center [lng, lat]
+      zoom: 8.5, // Initial zoom level
+    });
+
+    // Wait for the map to load before adding the layer
+    map.on('load', () => {
+      // Add your vector tile source
+      map.addSource('highways-source', {
+        type: 'vector',
+        tiles: ['http://localhost:3000/tiles/{z}/{x}/{y}.mvt'], // URL to your tile server
+        minzoom: 0,
+        maxzoom: 14,
+      });
+
+      // Add a layer to style and render the data as lines
+      map.addLayer({
+        id: 'highways-layer',
+        type: 'line', // Layer type (line instead of fill)
+        source: 'highways-source',
+        'source-layer': 'highways', // Must match the layer name in ST_AsMVT
+        paint: {
+          'line-color': [
+            'match',
+            ['get', 'highway'], // Use the 'highway' property from the data
+            'added', '#FF4500', // Orange Red
+            'bridleway', '#8B4513', // Saddle Brown
+            'construction', '#FFA500', // Orange
+            'corridor', '#DAA520', // Goldenrod
+            'cycleway', '#32CD32', // Lime Green
+            'footway', '#FFD700', // Gold
+            'living_street', '#ADD8E6', // Light Blue
+            'motorway', '#FF0000', // Red
+            'motorway_link', '#B22222', // Firebrick
+            'path', '#228B22', // Forest Green
+            'pedestrian', '#EEE8AA', // Pale Goldenrod
+            'primary', '#00FF00', // Green
+            'primary_link', '#006400', // Dark Green
+            'residential', '#FF69B4', // Hot Pink
+            'rest_area', '#9370DB', // Medium Purple
+            'road', '#D2691E', // Chocolate
+            'secondary', '#0000FF', // Blue
+            'secondary_link', '#00008B', // Dark Blue
+            'service', '#D3D3D3', // Light Grey
+            'servicel', '#A9A9A9', // Dark Grey
+            'steps', '#696969', // Dim Grey
+            'tertiary', '#FFFF00', // Yellow
+            'tertiary_link', '#CCCC00', // Dark Yellow
+            'track', '#8B0000', // Dark Red
+            'trunk', '#9400D3', // Dark Violet
+            'trunk_link', '#800080', // Purple
+            'unclassified', '#808080', // Grey
+            '#888888' // Default for unmatched properties
+          ],
+
+          'line-width': 2, // Set the line width
+          'line-opacity': 0.8, // Set the line opacity
+        }
+
+      });
+      map.on('click', 'highways-layer', (e) => {
+        console.log(e.features[0].properties); // Log the properties of the clicked feature
+      });
+    });
+  </script>
+</body>
+
+</html>
