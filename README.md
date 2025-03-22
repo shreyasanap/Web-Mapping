@@ -20,9 +20,10 @@
 
 
 ### Purpose:
-1. Assists ubrban planners in identifying narrow or congested roads that may require expansion or improvement.
+1. Assists urban planners in identifying narrow or congested roads that may require expansion or improvement.
 2. Can be used for Traffic Management & Optimization
 3. Helps emergency services identify faster routes by differentiating between highway types
+   
 ### Classification along with color code
 
 <table>
